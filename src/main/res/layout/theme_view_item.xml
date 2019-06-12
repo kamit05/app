@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="@dimen/margin_three">
+
+    <TextView
+        android:padding="@dimen/margin_five"
+        android:id="@+id/mytheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/my_theme"
+        android:textSize="@dimen/standard_font_size"
+        android:paddingLeft="@dimen/margin_five"
+        android:textColor="@color/colorBlack"
+        />
+
+    <TextView
+        android:layout_toLeftOf="@+id/mytheme"
+        android:layout_alignParentRight="true"
+        android:padding="@dimen/margin_five"
+        android:id="@+id/viewAllThemes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/theme_view_all"
+        android:textSize="@dimen/standard_font_size"
+        android:textColor="@color/colorAccent"
+        />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/myThemeRecycler"
+        android:layout_below="@+id/mytheme"
+        android:scrollbars="vertical"
+        app:layout_constraintHorizontal_bias="0.0"
+        android:padding="@dimen/margin_five"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </android.support.v7.widget.RecyclerView>
+
+</RelativeLayout>
+
