@@ -16,16 +16,15 @@
         android:textColor="@color/colorBlack"
         />
 
-    <TextView
+    <ImageView
         android:layout_toLeftOf="@+id/mytheme"
         android:layout_alignParentRight="true"
         android:padding="@dimen/margin_five"
         android:id="@+id/viewAllThemes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/theme_view_all"
         android:textSize="@dimen/standard_font_size"
-        android:textColor="@color/colorAccent"
+        android:src="@drawable/ic_keyboard_arrow_down_grey"
         />
 
     <android.support.v7.widget.RecyclerView

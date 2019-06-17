@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5">
+
+    <com.bobbletheme.imagecropper.CropView
+        android:id="@+id/image_cropper"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="21dp"
+        android:progress="40"
+        android:layout_marginTop="100dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginLeft="40dp"
+        android:layout_toLeftOf="@+id/alpha_value_tv"
+        android:layout_toStartOf="@+id/alpha_value_tv"
+        android:id="@+id/alpha_seek_bar"/>
+    <Button
+        android:id="@+id/custom_fragment_2_done_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="@string/done_c"
+        android:textColor="@color/white"
+        android:layout_marginBottom="50dp"/>
+
+    <TextView
+        android:minWidth="40dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="40dp"
+        android:layout_marginEnd="40dp"
+        android:textColor="@color/white"
+        android:id="@+id/alpha_value_tv" />
+
+    <TextView
+        android:text="@string/adjust_brightness"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/alpha_value_tv"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:layout_marginBottom="25dp"
+        android:id="@+id/textView6" />
+
+</RelativeLayout>

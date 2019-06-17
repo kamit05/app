@@ -1,7 +1,9 @@
 package com.bobbletheme.model;
 
 
-public class ThemeCategories {
+import android.support.annotation.NonNull;
+
+public class ThemeCategories implements Comparable, Cloneable{
 
     public Themes[] themes;
 
@@ -67,6 +69,21 @@ public class ThemeCategories {
     public String toString()
     {
         return "ClassPojo [themes = "+themes+", displayExpandedView = "+displayExpandedView+", numPreviewThemes = "+numPreviewThemes+", themeCategoryId = "+themeCategoryId+", themeCategoryName = "+themeCategoryName+"]";
+    }
+
+    @Override
+    public int compareTo(@NonNull Object o) {
+        return 0;
+    }
+    @Override
+    public ThemeCategories clone() {
+        ThemeCategories clone;
+        try {
+            clone = (ThemeCategories) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e); //should not happen
+        }
+        return clone;
     }
 }
 			

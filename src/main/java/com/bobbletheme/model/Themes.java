@@ -1,9 +1,11 @@
 package com.bobbletheme.model;
 
+import android.support.annotation.NonNull;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Themes {
+public class Themes implements Comparable, Cloneable {
 
     @SerializedName("isLightTheme")
     @Expose
@@ -569,6 +571,22 @@ public class Themes {
     public String toString()
     {
         return "ClassPojo [isLightTheme = "+isLightTheme+", hintLetterColor = "+hintLetterColor+", themeBackgroundImageHDPIURL = "+themeBackgroundImageHDPIURL+", keyBorderRadius = "+keyBorderRadius+", themeId = "+themeId+", keyBackgroundColor = "+keyBackgroundColor+", suggestionsColorValidTypedWord = "+suggestionsColorValidTypedWord+", themeBackgroundImageXXHDPIURL = "+themeBackgroundImageXXHDPIURL+", swipeGestureTrailColor = "+swipeGestureTrailColor+", moreSuggestionsButtonBackgroundColor = "+moreSuggestionsButtonBackgroundColor+", suggestionsColorSuggested = "+suggestionsColorSuggested+", themePreviewImageHDPIURL = "+themePreviewImageHDPIURL+", gestureFloatingPreviewTextColor = "+gestureFloatingPreviewTextColor+", functionalTextColor = "+functionalTextColor+", suggestionsBarPageIndicatorColor = "+suggestionsBarPageIndicatorColor+", suggestionsColorAutoCorrect = "+suggestionsColorAutoCorrect+", themePreviewImageORIGINALURL = "+themePreviewImageORIGINALURL+", keyPopUpPreviewBackgroundColor = "+keyPopUpPreviewBackgroundColor+", feedbackBarPopupBackgroundColor = "+feedbackBarPopupBackgroundColor+", keyboardBackgroundColor = "+keyboardBackgroundColor+", themeBackgroundImageXHDPIURL = "+themeBackgroundImageXHDPIURL+", themePreviewImageXHDPIURL = "+themePreviewImageXHDPIURL+", themePreviewImageXXHDPIURL = "+themePreviewImageXXHDPIURL+", keyTextColor = "+keyTextColor+", themeType = "+themeType+", themeBackgroundImageORIGINALURL = "+themeBackgroundImageORIGINALURL+", moreSuggestionsPanelBackgroundColor = "+moreSuggestionsPanelBackgroundColor+", themeName = "+themeName+", emojiRowBackgroundColor = "+emojiRowBackgroundColor+", suggestionsColorTypedWord = "+suggestionsColorTypedWord+", keyVerticalGap = "+keyVerticalGap+", enterKeyBorderRadius = "+enterKeyBorderRadius+", hintLabelColor = "+hintLabelColor+", suggestionsBarIconSelectedColor = "+suggestionsBarIconSelectedColor+", showNonAlphaKeyBorder = "+showNonAlphaKeyBorder+", bobbleBar = "+bobbleBar+", enterKeyCircleBackgroundColor = "+enterKeyCircleBackgroundColor+", gestureFloatingPreviewColor = "+gestureFloatingPreviewColor+", keyboardBackgroundOpacity = "+keyboardBackgroundOpacity+", suggestionsBarBackgroundColor = "+suggestionsBarBackgroundColor+"]";
+    }
+
+    @Override
+    public int compareTo(@NonNull Object o) {
+        return 0;
+    }
+    @Override
+    public Themes clone() {
+        Themes clone;
+        try {
+            clone = (Themes) super.clone();
+
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e); //should not happen
+        }
+        return clone;
     }
 }
 			
