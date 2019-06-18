@@ -1,21 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="120dp"
-    android:layout_height="100dp"
+    android:layout_width="105.33dp"
+    android:layout_height="77.67dp"
     xmlns:fresco="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:padding="@dimen/margin_two">
+    android:paddingBottom="@dimen/margin_ten">
 
     <com.facebook.drawee.view.SimpleDraweeView
         android:id="@+id/sdvImage"
-        android:layout_marginBottom="-5dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        fresco:placeholderImage="@mipmap/ic_launcher"
+        fresco:placeholderImage="@color/gray_separator"
         fresco:placeholderImageScaleType="fitXY"
-        fresco:roundedCornerRadius="3.33dp"
+        fresco:roundedCornerRadius="5dp"
         fresco:roundingBorderColor="#FFEBEBEB"
-        fresco:roundingBorderWidth="0.33dp" />
+        fresco:roundingBorderWidth="1.33dp"
+        />
+
+    <ImageView
+        android:id="@+id/deleteTheme"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:scaleType="fitXY"
+        android:src="@mipmap/delete"
+        android:visibility="gone"
+        />
 
     <ImageView
         android:id="@+id/themeSelected"

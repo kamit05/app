@@ -45,7 +45,7 @@ public class ThemeActivity extends AppCompatActivity implements ThemeLoaderInter
     private static final int REQUEST_PERMISSION = 100;
     private ThemeLoaderInterface themeLoaderInterface;
     private ProgressBar progressBar;
-    public static ThemeDataAdapter dataAdapter;
+    private ThemeDataAdapter dataAdapter;
     public static ThemeDatabase themeDatabase;
     public static List<ThemeModel> myThemesDataItems;
     private final int REQUEST_CODE_PICK_IMAGE = 0;
@@ -72,11 +72,6 @@ public class ThemeActivity extends AppCompatActivity implements ThemeLoaderInter
         thremeServerConnection.makeThemeObjectRequest();
     }
 
-    public static synchronized ThemeActivity getInstance() {
-        return sAppInstance;
-    }
-
-
     @Override
     public boolean onSupportNavigateUp() {
         finish();
@@ -86,7 +81,7 @@ public class ThemeActivity extends AppCompatActivity implements ThemeLoaderInter
     @Override
     public void updateUI(ThemeCategories[] themeCategories) {
         this.themeCategories = themeCategories;
-        dataAdapter = new ThemeDataAdapter(context, themeCategories);
+        dataAdapter = new ThemeDataAdapter(context, themeCategories, progressBar);
         parentRecycler.setAdapter(dataAdapter);
         progressBar.setVisibility(View.GONE);
     }
@@ -107,10 +102,6 @@ public class ThemeActivity extends AppCompatActivity implements ThemeLoaderInter
             }
             return;
         }
-    }
-
-    public void updateAdapter() {
-        dataAdapter.notifyItemInserted(0);
     }
 
     @SuppressLint("StaticFieldLeak")

@@ -29,7 +29,11 @@ public class ThemeUtils {
         sBuildKeyValuesDebugString = "[" + TextUtils.join(" ", keyValuePairs) + "]";
     }
 
-
+    /***
+     * Method returning default keyboard height
+     * @param res
+     * @return
+     */
     public static int getDefaultKeyboardHeight(final Resources res) {
         final DisplayMetrics dm = res.getDisplayMetrics();
         final String keyboardHeightInDp = getDeviceOverrideValue(
@@ -58,6 +62,13 @@ public class ThemeUtils {
         return normal;
     }
 
+    /***
+     * Method getting device overridden value
+     * @param res
+     * @param overrideResId
+     * @param defaultValue
+     * @return
+     */
     public static String getDeviceOverrideValue(final Resources res, final int overrideResId,
                                                 final String defaultValue) {
         final int orientation = res.getConfiguration().orientation;
@@ -154,6 +165,14 @@ public class ThemeUtils {
         }
     }
 
+    /***
+     * Method decoding sample image Bitmap
+     * @param pictureUri
+     * @param width
+     * @param height
+     * @param context
+     * @return
+     */
     public static Bitmap decodeSampledBitmapFromStrem(Uri pictureUri, int width, int height, Context context) {
         // First decode with inJustDecodeBounds=true to check dimensions
         try {
@@ -172,6 +191,14 @@ public class ThemeUtils {
         }
         return null;
     }
+
+    /***
+     * Methopd calculating sample image size
+     * @param options
+     * @param reqWidth
+     * @param reqHeight
+     * @return
+     */
     public static int calculateInSampleSize(
             BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw height and width of image
@@ -193,6 +220,31 @@ public class ThemeUtils {
         }
 
         return inSampleSize;
+    }
+
+    /***
+     * Method fetching device resolution
+     * @param context
+     * @return
+     */
+    public static String getScreenResolution( Context context){
+        float screenDensity = context. getResources().getDisplayMetrics().density;
+        if (screenDensity >= 4.0) {
+            return "xxxhdpi";
+        }
+        if (screenDensity >= 3.0) {
+            return "xxhdpi";
+        }
+        if (screenDensity >= 2.0) {
+            return "xhdpi";
+        }
+        if (screenDensity >= 1.5) {
+            return "hdpi";
+        }
+        if (screenDensity >= 1.0) {
+            return "mdpi";
+        }
+        return "ldpi";
     }
 
 

@@ -11,25 +11,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import com.bobbletheme.R;
 import com.bobbletheme.model.ThemeCategories;
-
 import java.io.File;
-
 import static com.bobbletheme.view.ThemeActivity.myThemesDataItems;
 
 public class ThemeDataAdapter extends RecyclerView.Adapter<ThemeDataAdapter.ViewHolder> {
     private Context context;
-    private ThemeDataItemAdapter themeDataAdapterMyTheme;
+    private ThemeDataItemAdapter themeDataAdapterMyThemes;
     private ThemeDataItemAdapter themeDataAdapterAPIThemes;
     private ThemeCategories[] themeCategories;
-    private boolean isMyTheme =false;
+    public static boolean isMyTheme = false;
+    private ProgressBar progressBar;
 
-    public ThemeDataAdapter(Context context, ThemeCategories[] themeCategories) {
+    public ThemeDataAdapter(Context context, ThemeCategories[] themeCategories, ProgressBar progressBar) {
         this.context = context;
         this.themeCategories = themeCategories;
+        this.progressBar = progressBar;
     }
 
     @Override
@@ -54,19 +54,24 @@ public class ThemeDataAdapter extends RecyclerView.Adapter<ThemeDataAdapter.View
         if (i == 0){
                 viewHolder.txtThemeHeader.setText(context.getResources().getString(R.string.my_theme));
                 viewHolder.txtViewAllThemes.setTag(context.getResources().getString(R.string.my_theme));
-                viewHolder.txtViewAllThemes.setVisibility(View.INVISIBLE);
                 isMyTheme = true;
-                themeDataAdapterMyTheme = new ThemeDataItemAdapter(context,myThemesDataItems, getLastImageFromGallery(context), isMyTheme);
-                viewHolder.recyclerViewMyTheme.setAdapter(themeDataAdapterMyTheme);
-
+                themeDataAdapterMyThemes = new ThemeDataItemAdapter(context,myThemesDataItems, getLastImageFromGallery(context), isMyTheme, this, progressBar);
+                viewHolder.recyclerViewMyTheme.setAdapter(themeDataAdapterMyThemes);
+                if (myThemesDataItems.size() < 5){
+                    viewHolder.txtViewAllThemes.setVisibility(View.INVISIBLE);
+                 } else {
+                    viewHolder.txtViewAllThemes.setVisibility(View.VISIBLE);
+                }
         } else {
                 isMyTheme = false;
                 viewHolder.txtThemeHeader.setText(themeCategories[i-1].getThemeCategoryName());
                 viewHolder.txtViewAllThemes.setTag(themeCategories[i-1].getThemeCategoryName());
-                themeDataAdapterAPIThemes = new ThemeDataItemAdapter(context, themeCategories[i-1].themes);
+                themeDataAdapterAPIThemes = new ThemeDataItemAdapter(context, themeCategories[i-1].themes, this, progressBar);
                 viewHolder.recyclerViewMyTheme.setAdapter(themeDataAdapterAPIThemes);
                 if (themeCategories[i-1].themes.length < 6){
                     viewHolder.txtViewAllThemes.setVisibility(View.INVISIBLE);
+                } else {
+                    viewHolder.txtViewAllThemes.setVisibility(View.VISIBLE);
                 }
         }
 
@@ -75,8 +80,16 @@ public class ThemeDataAdapter extends RecyclerView.Adapter<ThemeDataAdapter.View
             public void onClick(View view) {
                 ThemeDataItemAdapter adapter = (ThemeDataItemAdapter) viewHolder.recyclerViewMyTheme.getAdapter();
                 if (view.getTag().equals(context.getResources().getString(R.string.my_theme))){
-                    expandViewOnClick(view, adapter, myThemesDataItems.size());
-                } else {
+                    isMyTheme = true;
+                    expandViewOnClick(view, adapter, myThemesDataItems.size() + 2);
+                } else if (view.getTag().equals(context.getResources().getString(R.string.popular))){
+                    isMyTheme = false;
+                    expandViewOnClick(view, adapter, themeCategories[i - 1].themes.length);
+                } else if (view.getTag().equals(context.getResources().getString(R.string.color))){
+                    isMyTheme = false;
+                    expandViewOnClick(view, adapter, themeCategories[i - 1].themes.length);
+                } else if (view.getTag().equals(context.getResources().getString(R.string.photo))){
+                    isMyTheme = false;
                     expandViewOnClick(view, adapter, themeCategories[i - 1].themes.length);
                 }
             }
@@ -98,6 +111,13 @@ public class ThemeDataAdapter extends RecyclerView.Adapter<ThemeDataAdapter.View
             recyclerViewMyTheme.setLayoutManager(gridLayoutManagerMyTheme);
         }
     }
+
+    /***
+     * Method expanding and compressing the list items
+     * @param view
+     * @param themeDataAdapterAPIThemes
+     * @param length
+     */
     private void expandViewOnClick(View view, ThemeDataItemAdapter themeDataAdapterAPIThemes, int length){
         try {
             if (!themeDataAdapterAPIThemes.isExpanded()) {
@@ -115,7 +135,7 @@ public class ThemeDataAdapter extends RecyclerView.Adapter<ThemeDataAdapter.View
     }
 
     /***
-     * Method Geting Image from Gallery
+     * Method Getting Image from Gallery
      * @param context
      * @return
      */

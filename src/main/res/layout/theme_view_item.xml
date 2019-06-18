@@ -3,7 +3,8 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:padding="@dimen/margin_three">
+    android:padding="@dimen/margin_ten"
+    android:paddingLeft="@dimen/margin_ten">
 
     <TextView
         android:padding="@dimen/margin_five"
@@ -13,17 +14,19 @@
         android:text="@string/my_theme"
         android:textSize="@dimen/standard_font_size"
         android:paddingLeft="@dimen/margin_five"
-        android:textColor="@color/colorBlack"
+        android:textColor="@color/fontColor"
+        android:fontFamily="Roboto-Regular"
+        android:paddingBottom="@dimen/margin_ten"
         />
 
     <ImageView
         android:layout_toLeftOf="@+id/mytheme"
+        android:paddingBottom="@dimen/margin_ten"
+        android:paddingRight="@dimen/margin_ten"
         android:layout_alignParentRight="true"
-        android:padding="@dimen/margin_five"
         android:id="@+id/viewAllThemes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/standard_font_size"
         android:src="@drawable/ic_keyboard_arrow_down_grey"
         />
 

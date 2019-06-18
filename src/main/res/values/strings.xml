@@ -3,6 +3,10 @@
     <string name="theme_view_all">VIEW ALL</string>
     <string name="theme_view_less">VIEW LESS</string>
     <string name="my_theme">My Themes</string>
+    <string name="popular">Popular</string>
+    <string name="color">Color</string>
+    <string name="photo">Photo</string>
+    <string name="gradient">Gradient</string>
     <string name="some_error_occured">Some error occurred</string>
     <string name="pinch_to_scale">Pinch to scale, Drag to move</string>
     <string name="next">NEXT</string>

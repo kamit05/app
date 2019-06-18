@@ -7,11 +7,11 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.bobbletheme.R;
@@ -28,28 +28,31 @@ import static com.bobbletheme.view.ThemeActivity.myThemesDataItems;
 import static com.bobbletheme.view.ThemeActivity.themeDatabase;
 
 
-public class ThemeDataItemAdapter extends RecyclerView.Adapter<ThemeDataItemAdapter.ViewHolder> implements View.OnClickListener, View.OnLongClickListener{
+public class ThemeDataItemAdapter extends RecyclerView.Adapter<ThemeDataItemAdapter.ViewHolder> {
     private Themes[] imageUrls;
     private Context context;
     public boolean isExpanded;
-    private int mAdapterSize = 0;
-    public static boolean imageAdded = true;
-    private boolean isMyTheme;
     private Bitmap lastGalleryImage;
     private final int REQUEST_CODE_PICK_IMAGE = 0;
-    private ThemeModel themeModelSelected;
+    private ThemeDataAdapter themeDataAdapter;
+    private ProgressBar progressBar;
 
-    public ThemeDataItemAdapter(Context context, Themes[] imageUrls) {
+    public ThemeDataItemAdapter(Context context, Themes[] imageUrls, ThemeDataAdapter themeDataAdapter, ProgressBar progressBar) {
         this.context = context;
         this.imageUrls = imageUrls;
+        this.themeDataAdapter = themeDataAdapter;
+        this.progressBar = progressBar;
     }
 
-    public ThemeDataItemAdapter(Context context, List<ThemeModel> myThemesDataItems, Bitmap lastGalleryImage, boolean isMyTheme) {
+    public ThemeDataItemAdapter(Context context, List<ThemeModel> myThemesDataItems, Bitmap lastGalleryImage, boolean isMyTheme, ThemeDataAdapter themeDataAdapter, ProgressBar progressBar) {
         this.context = context;
-        this.isMyTheme = isMyTheme;
+        ThemeDataAdapter.isMyTheme = isMyTheme;
         this.lastGalleryImage = lastGalleryImage;
         ThemeActivity.myThemesDataItems = myThemesDataItems;
+        this.themeDataAdapter = themeDataAdapter;
+        this.progressBar = progressBar;
     }
+
 
     public void setExpanded(boolean expanded) {
         isExpanded = expanded;
@@ -76,34 +79,35 @@ public class ThemeDataItemAdapter extends RecyclerView.Adapter<ThemeDataItemAdap
     @Override
     public void onBindViewHolder(final ViewHolder viewHolder, final int i) {
         try {
-              if (isMyTheme) {
-                  if (i == 0){
-                      viewHolder.draweeView.setImageResource(R.drawable.ic_add_black_grey);
-                      viewHolder.draweeView.setTag("CUSTOM");
-                  }  else if (i == 1){
+              if (ThemeDataAdapter.isMyTheme) {
+                  if (i == myThemesDataItems.size()){
                       viewHolder.draweeView.setImageBitmap(lastGalleryImage);
                       viewHolder.draweeView.setTag("GALLERY");
-                      viewHolder.themeSelected.setVisibility(View.VISIBLE);
-                  } else {
+                  } else if (i == myThemesDataItems.size() + 1){
+                      viewHolder.draweeView.setImageResource(R.drawable.ic_add_black_grey);
+                      viewHolder.draweeView.setBackgroundResource(R.drawable.border_color);
+                      viewHolder.draweeView.setTag("CUSTOM");
+                  }  else {
                     if (myThemesDataItems != null && myThemesDataItems.size() != 0) {
-                        if (getScreenResolution().contains(BobbleConstants.XXHDPI)) {
-                            viewHolder.draweeView.setImageURI(myThemesDataItems.get(i-2).themePreviewImageXXHDPIURL);
-                        } else if (getScreenResolution().contains(BobbleConstants.XHDPI)) {
-                            viewHolder.draweeView.setImageURI(myThemesDataItems.get(i-2).themePreviewImageXHDPIURL);
+                        if (ThemeUtils.getScreenResolution(context).contains(BobbleConstants.XXHDPI)) {
+                            viewHolder.draweeView.setImageURI(myThemesDataItems.get(myThemesDataItems.size() - i -1).themePreviewImageXXHDPIURL);
+                        } else if (ThemeUtils.getScreenResolution(context).contains(BobbleConstants.XHDPI)) {
+                            viewHolder.draweeView.setImageURI(myThemesDataItems.get(myThemesDataItems.size() - i -1).themePreviewImageXHDPIURL);
                         } else {
-                            viewHolder.draweeView.setImageURI(myThemesDataItems.get(i-2).themePreviewImageHDPIURL);
+                            viewHolder.draweeView.setImageURI(myThemesDataItems.get(myThemesDataItems.size() - i -1).themePreviewImageHDPIURL);
                         }
                         viewHolder.draweeView.setTag("MY THEMES");
                     }
                 }
             } else {
-                  if (getScreenResolution().contains(BobbleConstants.XXHDPI)) {
+                  if (ThemeUtils.getScreenResolution(context).contains(BobbleConstants.XXHDPI)) {
                       viewHolder.draweeView.setImageURI(imageUrls[i].getThemePreviewImageXXHDPIURL());
-                  } else if (getScreenResolution().contains(BobbleConstants.XHDPI)) {
+                  } else if (ThemeUtils.getScreenResolution(context).contains(BobbleConstants.XHDPI)) {
                       viewHolder.draweeView.setImageURI(imageUrls[i].getThemePreviewImageXHDPIURL());
                   } else {
                       viewHolder.draweeView.setImageURI(imageUrls[i].getThemePreviewImageHDPIURL());
                   }
+                  viewHolder.draweeView.setTag("API THEMES");
               }
 
             viewHolder.draweeView.setOnClickListener(new View.OnClickListener() {
@@ -113,14 +117,34 @@ public class ThemeDataItemAdapter extends RecyclerView.Adapter<ThemeDataItemAdap
                         Toast.makeText(context, viewHolder.draweeView.getTag().toString(), Toast.LENGTH_SHORT).show();
                         openIntentToPickImage();
                     } else if (viewHolder.draweeView.getTag() != null  && viewHolder.draweeView.getTag().equals("GALLERY")){
-                        Toast.makeText(context, viewHolder.draweeView.getTag().toString(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, viewHolder.draweeView.getTag().toString() + " " + "THEME SELECTED", Toast.LENGTH_SHORT).show();
                         return;
                     }  else if (viewHolder.draweeView.getTag() != null  && viewHolder.draweeView.getTag().equals("MY THEMES")){
-                        Toast.makeText(context, viewHolder.draweeView.getTag().toString(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, viewHolder.draweeView.getTag().toString() + " " + "SELECTED", Toast.LENGTH_SHORT).show();
                         return;
                     } else {
-                        fetchTodoById(Integer.parseInt(imageUrls[i].getThemeId()), imageUrls[i]);
+                        insertSelectedThemeInDB(imageUrls[i]);
                     }
+                }
+            });
+            viewHolder.draweeView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    if (viewHolder.draweeView.getTag() != null && !viewHolder.draweeView.getTag().equals("API THEMES") && !viewHolder.draweeView.getTag().equals("CUSTOM") && !viewHolder.draweeView.getTag().equals("GALLERY")){
+                        viewHolder.deleteTheme.setVisibility(View.VISIBLE);
+                    }
+                    return false;
+                }
+            });
+            viewHolder.deleteTheme.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    deleteRow(myThemesDataItems.get(myThemesDataItems.size()-i-1));
+                    myThemesDataItems.remove(myThemesDataItems.size()-i-1);
+                    viewHolder.deleteTheme.setVisibility(View.GONE);
+                    notifyItemRemoved(i);
+                    ThemeDataAdapter.isMyTheme = true;
+                    themeDataAdapter.notifyItemChanged(0);
                 }
             });
         } catch (Exception ex){
@@ -128,7 +152,14 @@ public class ThemeDataItemAdapter extends RecyclerView.Adapter<ThemeDataItemAdap
         }
     }
 
+    /***
+     * Method inserting selected theme in Room Database
+     * @param imageUrls
+     */
     private void insertSelectedThemeInDB(Themes imageUrls) {
+        if (progressBar != null) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
         ThemeModel themeModel = new ThemeModel();
         themeModel.themeName = imageUrls.getThemeName();
         themeModel.themeType = imageUrls.getThemeType();
@@ -181,8 +212,19 @@ public class ThemeDataItemAdapter extends RecyclerView.Adapter<ThemeDataItemAdap
         themeModel.functionalTextColor = imageUrls.getFunctionalTextColor();
         themeModel.bobbleBar = imageUrls.getBobbleBar();
 
-        insertRow(themeModel);
-        loadAllThemes();
+        ThemeDataAdapter.isMyTheme = true;
+
+        if (!checkDuplicateTheme(myThemesDataItems, themeModel)) {
+            myThemesDataItems.add(themeModel);
+            themeDataAdapter.notifyItemChanged(0);
+            insertRow(themeModel);
+            Toast.makeText(context, "DOWNLOADING THEME..", Toast.LENGTH_SHORT).show();
+        } else {
+            if (progressBar != null) {
+                progressBar.setVisibility(View.GONE);
+            }
+            Toast.makeText(context, "THEME DOWNLOADED ALREADY!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -197,7 +239,9 @@ public class ThemeDataItemAdapter extends RecyclerView.Adapter<ThemeDataItemAdap
             } else {
                 if (myThemesDataItems == null || myThemesDataItems.size() == 0) {
                     return 2;
-                } else if (!isExpanded && myThemesDataItems.size() > 0){
+                } else if (!isExpanded && myThemesDataItems.size() > 4) {
+                    return 6;
+                } else {
                     return myThemesDataItems.size() + 2;
                 }
             }
@@ -207,52 +251,19 @@ public class ThemeDataItemAdapter extends RecyclerView.Adapter<ThemeDataItemAdap
         return -1;
     }
 
-    public void setAdapterSize(int size) {
-        this.mAdapterSize = size;
-    }
-
-    @Override
-    public void onClick(View view) {
-
-    }
-
-    @Override
-    public boolean onLongClick(View view) {
-        return false;
-    }
-
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         private SimpleDraweeView draweeView;
         private ImageView themeSelected;
+        private ImageView deleteTheme;
 
         public ViewHolder(View view) {
             super(view);
             draweeView = view.findViewById(R.id.sdvImage);
             themeSelected = view.findViewById(R.id.themeSelected);
+            deleteTheme = view.findViewById(R.id.deleteTheme);
         }
     }
-
-    private String getScreenResolution(){
-        float screenDensity = context. getResources().getDisplayMetrics().density;
-        if (screenDensity >= 4.0) {
-            return "xxxhdpi";
-        }
-        if (screenDensity >= 3.0) {
-            return "xxhdpi";
-        }
-        if (screenDensity >= 2.0) {
-            return "xhdpi";
-        }
-        if (screenDensity >= 1.5) {
-            return "hdpi";
-        }
-        if (screenDensity >= 1.0) {
-            return "mdpi";
-        }
-        return "ldpi";
-    }
-
 
     @SuppressLint("StaticFieldLeak")
     private void insertRow(ThemeModel themeModel) {
@@ -265,48 +276,12 @@ public class ThemeDataItemAdapter extends RecyclerView.Adapter<ThemeDataItemAdap
             @Override
             protected void onPostExecute(Long id) {
                 super.onPostExecute(id);
+                if (progressBar != null) {
+                    progressBar.setVisibility(View.GONE);
+                }
             }
         }.execute(themeModel);
 
-    }
-
-    @SuppressLint("StaticFieldLeak")
-    public void loadAllThemes() {
-        new AsyncTask<String, Void, List<ThemeModel>>() {
-            @Override
-            protected List<ThemeModel> doInBackground(String... params) {
-                Log.d("ThemeDataItem", "Theme List:::::: " + themeDatabase.daoAccess().fetchAllThemes());
-                return themeDatabase.daoAccess().fetchAllThemes();
-            }
-
-            @Override
-            protected void onPostExecute(List<ThemeModel> themeList) {
-                Log.d("ThemeDataItem", "Theme List:::::: ");
-                isMyTheme = true;
-                myThemesDataItems.clear();
-                myThemesDataItems.addAll(themeList);
-                ThemeActivity.dataAdapter.notifyItemChanged(0);
-            }
-        }.execute();
-    }
-
-    @SuppressLint("StaticFieldLeak")
-    private void fetchTodoById(int themeID, final Themes themesToBeInserted) {
-        new AsyncTask<Integer, Void, ThemeModel>() {
-            @Override
-            protected ThemeModel doInBackground(Integer... params) {
-                return themeDatabase.daoAccess().fetchThemeListById(params[0]);
-            }
-            @Override
-            protected void onPostExecute(ThemeModel themeModel) {
-                super.onPostExecute(themeModel);
-                if (themeModel == null) {
-                    insertSelectedThemeInDB(themesToBeInserted);
-                } else {
-                    Toast.makeText(context, "Theme downloaded already!", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }.execute(themeID);
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -342,6 +317,10 @@ public class ThemeDataItemAdapter extends RecyclerView.Adapter<ThemeDataItemAdap
         }.execute(themeModel);
 
     }
+
+    /***
+     * Method opening image picker available in device
+     */
     private void openIntentToPickImage() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
@@ -350,5 +329,20 @@ public class ThemeDataItemAdapter extends RecyclerView.Adapter<ThemeDataItemAdap
         } else {
             Toast.makeText(context, "No app found to open", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    /***
+     * Method checking any duplicate theme available in theme list
+     * @param themeModels
+     * @param themeModel
+     * @return
+     */
+    private boolean checkDuplicateTheme(List<ThemeModel> themeModels, ThemeModel themeModel){
+        for (int x = 0; x <themeModels.size(); x++){
+            if(themeModels.get(x).themeName.equalsIgnoreCase(themeModel.themeName)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
