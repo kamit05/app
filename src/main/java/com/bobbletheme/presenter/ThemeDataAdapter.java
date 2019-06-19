@@ -13,11 +13,17 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
 import com.bobbletheme.R;
 import com.bobbletheme.model.ThemeCategories;
+
 import java.io.File;
+
 import static com.bobbletheme.view.ThemeActivity.myThemesDataItems;
 
+/***
+ * Parent Adapter Class
+ */
 public class ThemeDataAdapter extends RecyclerView.Adapter<ThemeDataAdapter.ViewHolder> {
     private Context context;
     private ThemeDataItemAdapter themeDataAdapterMyThemes;
@@ -25,6 +31,8 @@ public class ThemeDataAdapter extends RecyclerView.Adapter<ThemeDataAdapter.View
     private ThemeCategories[] themeCategories;
     public static boolean isMyTheme = false;
     private ProgressBar progressBar;
+    private static final int IS_EXPANDED = 1;
+    private static final int IS_NOT_EXPANDED = 0;
 
     public ThemeDataAdapter(Context context, ThemeCategories[] themeCategories, ProgressBar progressBar) {
         this.context = context;
@@ -51,49 +59,54 @@ public class ThemeDataAdapter extends RecyclerView.Adapter<ThemeDataAdapter.View
      */
     @Override
     public void onBindViewHolder(final ViewHolder viewHolder, final int i) {
-        if (i == 0){
+        try {
+            if (i == 0) {
                 viewHolder.txtThemeHeader.setText(context.getResources().getString(R.string.my_theme));
                 viewHolder.txtViewAllThemes.setTag(context.getResources().getString(R.string.my_theme));
                 isMyTheme = true;
-                themeDataAdapterMyThemes = new ThemeDataItemAdapter(context,myThemesDataItems, getLastImageFromGallery(context), isMyTheme, this, progressBar);
+                themeDataAdapterMyThemes = new ThemeDataItemAdapter(context, myThemesDataItems, getLastImageFromGallery(context), isMyTheme, this);
                 viewHolder.recyclerViewMyTheme.setAdapter(themeDataAdapterMyThemes);
-                if (myThemesDataItems.size() < 5){
-                    viewHolder.txtViewAllThemes.setVisibility(View.INVISIBLE);
-                 } else {
-                    viewHolder.txtViewAllThemes.setVisibility(View.VISIBLE);
-                }
-        } else {
-                isMyTheme = false;
-                viewHolder.txtThemeHeader.setText(themeCategories[i-1].getThemeCategoryName());
-                viewHolder.txtViewAllThemes.setTag(themeCategories[i-1].getThemeCategoryName());
-                themeDataAdapterAPIThemes = new ThemeDataItemAdapter(context, themeCategories[i-1].themes, this, progressBar);
-                viewHolder.recyclerViewMyTheme.setAdapter(themeDataAdapterAPIThemes);
-                if (themeCategories[i-1].themes.length < 6){
+                if (myThemesDataItems.size() < 5) {
                     viewHolder.txtViewAllThemes.setVisibility(View.INVISIBLE);
                 } else {
                     viewHolder.txtViewAllThemes.setVisibility(View.VISIBLE);
                 }
-        }
-
-        viewHolder.txtViewAllThemes.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ThemeDataItemAdapter adapter = (ThemeDataItemAdapter) viewHolder.recyclerViewMyTheme.getAdapter();
-                if (view.getTag().equals(context.getResources().getString(R.string.my_theme))){
-                    isMyTheme = true;
-                    expandViewOnClick(view, adapter, myThemesDataItems.size() + 2);
-                } else if (view.getTag().equals(context.getResources().getString(R.string.popular))){
-                    isMyTheme = false;
-                    expandViewOnClick(view, adapter, themeCategories[i - 1].themes.length);
-                } else if (view.getTag().equals(context.getResources().getString(R.string.color))){
-                    isMyTheme = false;
-                    expandViewOnClick(view, adapter, themeCategories[i - 1].themes.length);
-                } else if (view.getTag().equals(context.getResources().getString(R.string.photo))){
-                    isMyTheme = false;
-                    expandViewOnClick(view, adapter, themeCategories[i - 1].themes.length);
+            } else {
+                isMyTheme = false;
+                viewHolder.txtThemeHeader.setText(themeCategories[i - 1].getThemeCategoryName());
+                viewHolder.txtViewAllThemes.setTag(themeCategories[i - 1].getThemeCategoryName());
+                themeDataAdapterAPIThemes = new ThemeDataItemAdapter(context, themeCategories[i - 1].themes, this);
+                viewHolder.recyclerViewMyTheme.setAdapter(themeDataAdapterAPIThemes);
+                if (themeCategories[i - 1].themes.length < 6) {
+                    viewHolder.txtViewAllThemes.setVisibility(View.INVISIBLE);
+                } else {
+                    viewHolder.txtViewAllThemes.setVisibility(View.VISIBLE);
                 }
             }
-        });
+
+            viewHolder.txtViewAllThemes.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ThemeDataItemAdapter adapter = (ThemeDataItemAdapter) viewHolder.recyclerViewMyTheme.getAdapter();
+                    if (view.getId() != IS_EXPANDED && view.getId() != IS_NOT_EXPANDED){
+                        view.setId(IS_NOT_EXPANDED);
+                    }
+                    if (view.getTag().equals(context.getResources().getString(R.string.my_theme))) {
+                        isMyTheme = true;
+                        expandViewOnClick(view, adapter, myThemesDataItems.size() + 2);
+                    } else {
+                        isMyTheme = false;
+                        expandViewOnClick(view, adapter, themeCategories[i - 1].themes.length);
+                    }
+                }
+            });
+        } catch (Exception ex){
+            ex.printStackTrace();
+        } finally {
+            if (progressBar != null) {
+                progressBar.setVisibility(View.GONE);
+            }
+        }
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -120,11 +133,13 @@ public class ThemeDataAdapter extends RecyclerView.Adapter<ThemeDataAdapter.View
      */
     private void expandViewOnClick(View view, ThemeDataItemAdapter themeDataAdapterAPIThemes, int length){
         try {
-            if (!themeDataAdapterAPIThemes.isExpanded()) {
-                themeDataAdapterAPIThemes.notifyItemRangeInserted(6,  length-1);
+            if (view.getId() == IS_NOT_EXPANDED) {
+                view.setId(IS_EXPANDED);
                 themeDataAdapterAPIThemes.setExpanded(true);
+                themeDataAdapterAPIThemes.notifyItemRangeInserted(6,  length-1);
                 ((ImageView) view).setImageResource(R.drawable.ic_keyboard_arrow_up_grey);
             } else {
+                view.setId(IS_NOT_EXPANDED);
                 themeDataAdapterAPIThemes.setExpanded(false);
                 themeDataAdapterAPIThemes.notifyItemRangeRemoved(6, length-1);
                 ((ImageView) view).setImageResource(R.drawable.ic_keyboard_arrow_down_grey);

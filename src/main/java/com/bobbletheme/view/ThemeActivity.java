@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -20,14 +21,17 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.bobbletheme.R;
 import com.bobbletheme.model.BobbleConstants;
 import com.bobbletheme.model.ThemeCategories;
+import com.bobbletheme.model.ThemeVariation;
 import com.bobbletheme.model.Themes;
 import com.bobbletheme.presenter.ThemeDataAdapter;
 import com.bobbletheme.presenter.ThemeLoaderInterface;
 import com.bobbletheme.presenter.ThemeServerConnection;
+import com.bobbletheme.presenter.ThemeUtils;
 import com.bobbletheme.room.ThemeDatabase;
 import com.bobbletheme.room.ThemeModel;
 import com.google.gson.Gson;
@@ -59,7 +63,7 @@ public class ThemeActivity extends AppCompatActivity implements ThemeLoaderInter
         context = this;
         themeLoaderInterface = this;
         sAppInstance = this;
-        setTitle("Set Keyboard Theme");
+        setTitle(BobbleConstants.SET_KEYBOARD_THEME);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         askPermissions();
         progressBar = (ProgressBar) findViewById(R.id.themeProgress);
@@ -68,8 +72,6 @@ public class ThemeActivity extends AppCompatActivity implements ThemeLoaderInter
         parentRecycler.setLayoutManager(gridLayoutManagerMyTheme);
         themeDatabase = Room.databaseBuilder(context, ThemeDatabase.class, ThemeDatabase.DB_NAME).build();
         loadAllThemes();
-        ThemeServerConnection thremeServerConnection = new ThemeServerConnection(context, themeLoaderInterface);
-        thremeServerConnection.makeThemeObjectRequest();
     }
 
     @Override
@@ -83,7 +85,6 @@ public class ThemeActivity extends AppCompatActivity implements ThemeLoaderInter
         this.themeCategories = themeCategories;
         dataAdapter = new ThemeDataAdapter(context, themeCategories, progressBar);
         parentRecycler.setAdapter(dataAdapter);
-        progressBar.setVisibility(View.GONE);
     }
 
     /***
@@ -109,14 +110,28 @@ public class ThemeActivity extends AppCompatActivity implements ThemeLoaderInter
         new AsyncTask<String, Void, List<ThemeModel>>() {
             @Override
             protected List<ThemeModel> doInBackground(String... params) {
-                Log.d("ThemeDataItem", "Theme List:::::: " + themeDatabase.daoAccess().fetchAllThemes());
                 return themeDatabase.daoAccess().fetchAllThemes();
             }
 
             @Override
             protected void onPostExecute(List<ThemeModel> themeList) {
-                Log.d("ThemeDataItem", "Theme List:::::: ");
                 myThemesDataItems = themeList;
+                SharedPreferences sharedPreferences = context.getSharedPreferences(BobbleConstants.THEME_PREF, 0);
+                if (sharedPreferences.contains(BobbleConstants.OFFLINE_THEMES)) {
+                    Gson gson = new Gson();
+                    String json = sharedPreferences.getString(BobbleConstants.OFFLINE_THEMES, "");
+                    ThemeVariation themeVariation = gson.fromJson(json, ThemeVariation.class);
+                    ThemeCategories[] themeCategories = themeVariation.getThemeCategories();
+                    updateUI(themeCategories);
+                } else if (ThemeUtils.isNetworkAvailable(context)){
+                    SharedPreferences sharedPref = context.getSharedPreferences(BobbleConstants.THEME_PREF, 0);
+                    SharedPreferences.Editor sharedPreferencesEditor = sharedPref.edit();
+                    ThemeServerConnection thremeServerConnection = new ThemeServerConnection(context, themeLoaderInterface, sharedPreferencesEditor);
+                    thremeServerConnection.makeThemeObjectRequest();
+                } else {
+                    Toast.makeText(context, BobbleConstants.NO_NETWORK, Toast.LENGTH_SHORT).show();
+                    progressBar.setVisibility(View.GONE);
+                }
             }
         }.execute();
     }

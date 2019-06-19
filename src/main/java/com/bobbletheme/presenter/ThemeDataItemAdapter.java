@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,7 +28,9 @@ import java.util.List;
 import static com.bobbletheme.view.ThemeActivity.myThemesDataItems;
 import static com.bobbletheme.view.ThemeActivity.themeDatabase;
 
-
+/***
+ * Child Adapter Class
+ */
 public class ThemeDataItemAdapter extends RecyclerView.Adapter<ThemeDataItemAdapter.ViewHolder> {
     private Themes[] imageUrls;
     private Context context;
@@ -35,22 +38,19 @@ public class ThemeDataItemAdapter extends RecyclerView.Adapter<ThemeDataItemAdap
     private Bitmap lastGalleryImage;
     private final int REQUEST_CODE_PICK_IMAGE = 0;
     private ThemeDataAdapter themeDataAdapter;
-    private ProgressBar progressBar;
 
-    public ThemeDataItemAdapter(Context context, Themes[] imageUrls, ThemeDataAdapter themeDataAdapter, ProgressBar progressBar) {
+    public ThemeDataItemAdapter(Context context, Themes[] imageUrls, ThemeDataAdapter themeDataAdapter) {
         this.context = context;
         this.imageUrls = imageUrls;
         this.themeDataAdapter = themeDataAdapter;
-        this.progressBar = progressBar;
     }
 
-    public ThemeDataItemAdapter(Context context, List<ThemeModel> myThemesDataItems, Bitmap lastGalleryImage, boolean isMyTheme, ThemeDataAdapter themeDataAdapter, ProgressBar progressBar) {
+    public ThemeDataItemAdapter(Context context, List<ThemeModel> myThemesDataItems, Bitmap lastGalleryImage, boolean isMyTheme, ThemeDataAdapter themeDataAdapter) {
         this.context = context;
         ThemeDataAdapter.isMyTheme = isMyTheme;
         this.lastGalleryImage = lastGalleryImage;
         ThemeActivity.myThemesDataItems = myThemesDataItems;
         this.themeDataAdapter = themeDataAdapter;
-        this.progressBar = progressBar;
     }
 
 
@@ -82,11 +82,10 @@ public class ThemeDataItemAdapter extends RecyclerView.Adapter<ThemeDataItemAdap
               if (ThemeDataAdapter.isMyTheme) {
                   if (i == myThemesDataItems.size()){
                       viewHolder.draweeView.setImageBitmap(lastGalleryImage);
-                      viewHolder.draweeView.setTag("GALLERY");
+                      viewHolder.draweeView.setTag(BobbleConstants.GALLERY);
                   } else if (i == myThemesDataItems.size() + 1){
-                      viewHolder.draweeView.setImageResource(R.drawable.ic_add_black_grey);
-                      viewHolder.draweeView.setBackgroundResource(R.drawable.border_color);
-                      viewHolder.draweeView.setTag("CUSTOM");
+                      viewHolder.addCustomTheme.setVisibility(View.VISIBLE);
+                      viewHolder.draweeView.setTag(BobbleConstants.CUSTOM);
                   }  else {
                     if (myThemesDataItems != null && myThemesDataItems.size() != 0) {
                         if (ThemeUtils.getScreenResolution(context).contains(BobbleConstants.XXHDPI)) {
@@ -96,7 +95,7 @@ public class ThemeDataItemAdapter extends RecyclerView.Adapter<ThemeDataItemAdap
                         } else {
                             viewHolder.draweeView.setImageURI(myThemesDataItems.get(myThemesDataItems.size() - i -1).themePreviewImageHDPIURL);
                         }
-                        viewHolder.draweeView.setTag("MY THEMES");
+                        viewHolder.draweeView.setTag(BobbleConstants.MY_THEMES);
                     }
                 }
             } else {
@@ -107,30 +106,31 @@ public class ThemeDataItemAdapter extends RecyclerView.Adapter<ThemeDataItemAdap
                   } else {
                       viewHolder.draweeView.setImageURI(imageUrls[i].getThemePreviewImageHDPIURL());
                   }
-                  viewHolder.draweeView.setTag("API THEMES");
+                  viewHolder.draweeView.setTag(BobbleConstants.API_THEMES);
               }
 
             viewHolder.draweeView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (viewHolder.draweeView.getTag() != null && viewHolder.draweeView.getTag().equals("CUSTOM")){
+                    if (viewHolder.draweeView.getTag() != null && viewHolder.draweeView.getTag().equals(BobbleConstants.CUSTOM)){
                         Toast.makeText(context, viewHolder.draweeView.getTag().toString(), Toast.LENGTH_SHORT).show();
                         openIntentToPickImage();
-                    } else if (viewHolder.draweeView.getTag() != null  && viewHolder.draweeView.getTag().equals("GALLERY")){
-                        Toast.makeText(context, viewHolder.draweeView.getTag().toString() + " " + "THEME SELECTED", Toast.LENGTH_SHORT).show();
+                    } else if (viewHolder.draweeView.getTag() != null  && viewHolder.draweeView.getTag().equals(BobbleConstants.GALLERY)){
+                        Toast.makeText(context, viewHolder.draweeView.getTag().toString() + " " + BobbleConstants.THEME_SELECTED, Toast.LENGTH_SHORT).show();
                         return;
-                    }  else if (viewHolder.draweeView.getTag() != null  && viewHolder.draweeView.getTag().equals("MY THEMES")){
+                    }  else if (viewHolder.draweeView.getTag() != null  && viewHolder.draweeView.getTag().equals(BobbleConstants.MY_THEMES)){
                         Toast.makeText(context, viewHolder.draweeView.getTag().toString() + " " + "SELECTED", Toast.LENGTH_SHORT).show();
                         return;
                     } else {
-                        insertSelectedThemeInDB(imageUrls[i]);
+                        viewHolder.themeDownloadProgess.setVisibility(View.VISIBLE);
+                        insertSelectedThemeInDB(imageUrls[i], viewHolder.themeDownloadProgess);
                     }
                 }
             });
             viewHolder.draweeView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-                    if (viewHolder.draweeView.getTag() != null && !viewHolder.draweeView.getTag().equals("API THEMES") && !viewHolder.draweeView.getTag().equals("CUSTOM") && !viewHolder.draweeView.getTag().equals("GALLERY")){
+                    if (viewHolder.draweeView.getTag() != null && !viewHolder.draweeView.getTag().equals(BobbleConstants.API_THEMES) && !viewHolder.draweeView.getTag().equals(BobbleConstants.CUSTOM) && !viewHolder.draweeView.getTag().equals(BobbleConstants.GALLERY)){
                         viewHolder.deleteTheme.setVisibility(View.VISIBLE);
                     }
                     return false;
@@ -156,10 +156,7 @@ public class ThemeDataItemAdapter extends RecyclerView.Adapter<ThemeDataItemAdap
      * Method inserting selected theme in Room Database
      * @param imageUrls
      */
-    private void insertSelectedThemeInDB(Themes imageUrls) {
-        if (progressBar != null) {
-            progressBar.setVisibility(View.VISIBLE);
-        }
+    private void insertSelectedThemeInDB(Themes imageUrls, View themeDownloadProgess) {
         ThemeModel themeModel = new ThemeModel();
         themeModel.themeName = imageUrls.getThemeName();
         themeModel.themeType = imageUrls.getThemeType();
@@ -217,13 +214,13 @@ public class ThemeDataItemAdapter extends RecyclerView.Adapter<ThemeDataItemAdap
         if (!checkDuplicateTheme(myThemesDataItems, themeModel)) {
             myThemesDataItems.add(themeModel);
             themeDataAdapter.notifyItemChanged(0);
-            insertRow(themeModel);
-            Toast.makeText(context, "DOWNLOADING THEME..", Toast.LENGTH_SHORT).show();
+            insertRow(themeModel, themeDownloadProgess);
+            Toast.makeText(context, BobbleConstants.DOWNLOADING_THEME, Toast.LENGTH_SHORT).show();
         } else {
-            if (progressBar != null) {
-                progressBar.setVisibility(View.GONE);
+            if (themeDownloadProgess != null) {
+                themeDownloadProgess.setVisibility(View.GONE);
             }
-            Toast.makeText(context, "THEME DOWNLOADED ALREADY!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, BobbleConstants.THEME_DOWNLOADED_ALREADY, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -256,32 +253,39 @@ public class ThemeDataItemAdapter extends RecyclerView.Adapter<ThemeDataItemAdap
         private SimpleDraweeView draweeView;
         private ImageView themeSelected;
         private ImageView deleteTheme;
+        private ImageView addCustomTheme;
+        private ProgressBar themeDownloadProgess;
 
         public ViewHolder(View view) {
             super(view);
             draweeView = view.findViewById(R.id.sdvImage);
             themeSelected = view.findViewById(R.id.themeSelected);
             deleteTheme = view.findViewById(R.id.deleteTheme);
+            addCustomTheme = view.findViewById(R.id.addCustomTheme);
+            themeDownloadProgess = view.findViewById(R.id.themeDownloadProgress);
         }
     }
 
     @SuppressLint("StaticFieldLeak")
-    private void insertRow(ThemeModel themeModel) {
+    private void insertRow(ThemeModel themeModel, final View themeDownloadProgess) {
         new AsyncTask<ThemeModel, Void, Long>() {
             @Override
             protected Long doInBackground(ThemeModel... params) {
                 return themeDatabase.daoAccess().insertTheme(params[0]);
             }
-
             @Override
             protected void onPostExecute(Long id) {
                 super.onPostExecute(id);
-                if (progressBar != null) {
-                    progressBar.setVisibility(View.GONE);
-                }
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (themeDownloadProgess != null) {
+                            themeDownloadProgess.setVisibility(View.GONE);
+                        }
+                    }
+                }, 1000 );
             }
         }.execute(themeModel);
-
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -291,7 +295,6 @@ public class ThemeDataItemAdapter extends RecyclerView.Adapter<ThemeDataItemAdap
             protected Integer doInBackground(ThemeModel... params) {
                 return themeDatabase.daoAccess().deleteTheme(params[0]);
             }
-
             @Override
             protected void onPostExecute(Integer number) {
                 super.onPostExecute(number);
@@ -308,7 +311,6 @@ public class ThemeDataItemAdapter extends RecyclerView.Adapter<ThemeDataItemAdap
             protected Integer doInBackground(ThemeModel... params) {
                 return themeDatabase.daoAccess().updateTheme(params[0]);
             }
-
             @Override
             protected void onPostExecute(Integer number) {
                 super.onPostExecute(number);

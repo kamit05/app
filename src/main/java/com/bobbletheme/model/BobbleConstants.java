@@ -2,6 +2,19 @@ package com.bobbletheme.model;
 
 public class BobbleConstants {
 
+
+    public static final String CUSTOM = "CUSTOM";
+    public static final String GALLERY = "GALLERY";
+    public static final String MY_THEMES = "MY THEMES";
+    public static final String API_THEMES = "API THEMES";
+    public static final String THEME_SELECTED = "THEME SELECTED";
+    public static final String DOWNLOADING_THEME = "DOWNLOADING THEME..";
+    public static final String THEME_DOWNLOADED_ALREADY = "THEME DOWNLOADED ALREADY!";
+    public static final String SET_KEYBOARD_THEME = "Set Keyboard Theme";
+    public static final String OFFLINE_THEMES = "OFFLINE_THEMES";
+    public static final String THEME_PREF = "THEME_PREF";
+    public static final String NO_NETWORK = "Network Not Available!";
+
     public static final String XXXHDPI = "xxxhdpi";
     public static final String XXHDPI = "xxhdpi";
     public static final String XHDPI = "xhdpi";

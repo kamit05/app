@@ -18,6 +18,25 @@
         />
 
     <ImageView
+        android:id="@+id/addCustomTheme"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/ic_add_black_grey"
+        android:visibility="gone"
+        android:paddingBottom="@dimen/margin_ten"
+        />
+
+    <ProgressBar
+        android:id="@+id/themeDownloadProgress"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:visibility="gone"/>
+
+    <ImageView
         android:id="@+id/deleteTheme"
         android:layout_width="30dp"
         android:layout_height="30dp"

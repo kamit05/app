@@ -1,6 +1,7 @@
 package com.bobbletheme.presenter;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.androidnetworking.AndroidNetworking;
@@ -16,20 +17,24 @@ import com.google.gson.GsonBuilder;
 
 import org.json.JSONObject;
 
+import static android.content.Context.MODE_PRIVATE;
+
 
 public class ThemeServerConnection {
 
     private static final String TAG = ThemeActivity.class.getSimpleName();
     private static final String THEME_URL = "https://api.bobbleapp.me/v4/bobbleKeyboardThemes/getList";
     private Context context;
+    private SharedPreferences.Editor prefsEditor;
 
 
     private ThemeLoaderInterface themeLoaderInterface;
 
 
-    public ThemeServerConnection(Context context, ThemeLoaderInterface themeLoaderInterface) {
+    public ThemeServerConnection(Context context, ThemeLoaderInterface themeLoaderInterface, SharedPreferences.Editor prefsEditor) {
         this.context = context;
         this.themeLoaderInterface = themeLoaderInterface;
+        this.prefsEditor = prefsEditor;
     }
     /***
      * Method making API call and loading the response in POJO
@@ -57,6 +62,9 @@ public class ThemeServerConnection {
                         try {
                             ThemeVariation responseObject = gson.fromJson(response.toString(), ThemeVariation.class);
                             ThemeCategories[] themeCategories = responseObject.getThemeCategories();
+                            String json = gson.toJson(responseObject);
+                            prefsEditor.putString("OFFLINE_THEMES", json);
+                            prefsEditor.commit();
                             themeLoaderInterface.updateUI(themeCategories);
                         } catch (Exception ex){
                             ex.printStackTrace();
