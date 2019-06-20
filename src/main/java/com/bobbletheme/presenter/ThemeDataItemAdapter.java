@@ -58,10 +58,6 @@ public class ThemeDataItemAdapter extends RecyclerView.Adapter<ThemeDataItemAdap
         isExpanded = expanded;
 
     }
-    public boolean isExpanded() {
-        return isExpanded;
-    }
-
 
     @Override
     public ThemeDataItemAdapter.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
@@ -83,11 +79,14 @@ public class ThemeDataItemAdapter extends RecyclerView.Adapter<ThemeDataItemAdap
                   if (i == myThemesDataItems.size()){
                       viewHolder.draweeView.setImageBitmap(lastGalleryImage);
                       viewHolder.draweeView.setTag(BobbleConstants.GALLERY);
+                      viewHolder.addCustomTheme.setVisibility(View.GONE);
                   } else if (i == myThemesDataItems.size() + 1){
+                      viewHolder.draweeView.setBackgroundResource(R.color.gray_separator);
                       viewHolder.addCustomTheme.setVisibility(View.VISIBLE);
                       viewHolder.draweeView.setTag(BobbleConstants.CUSTOM);
                   }  else {
-                    if (myThemesDataItems != null && myThemesDataItems.size() != 0) {
+                      viewHolder.addCustomTheme.setVisibility(View.GONE);
+                        if (myThemesDataItems != null && myThemesDataItems.size() != 0) {
                         if (ThemeUtils.getScreenResolution(context).contains(BobbleConstants.XXHDPI)) {
                             viewHolder.draweeView.setImageURI(myThemesDataItems.get(myThemesDataItems.size() - i -1).themePreviewImageXXHDPIURL);
                         } else if (ThemeUtils.getScreenResolution(context).contains(BobbleConstants.XHDPI)) {
